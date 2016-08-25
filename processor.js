@@ -3,10 +3,12 @@ var fs = require('fs'),
 
 var srcFile = 'index.html',
     destFile = 'main.html',
+    cssFile = 'styles.css',
     parser =  sax.parser(false),
     map = {},
     readableStream = fs.createReadStream(srcFile),
-    writableStream = fs.createWriteStream(destFile);
+    writableStream = fs.createWriteStream(destFile),
+    writableStream2 = fs.createWriteStream(cssFile);
 
 readableStream.setEncoding('utf8');
 readableStream.on('data', function(chunk) {
@@ -22,10 +24,13 @@ function parseChunk(content) {
             //put in the map
             map[className] = node.attributes.STYLE;
             //replace in html
-            var style = 'style="' + style + '"';
+            var htmlStyle = 'style="' + style + '"';
             var classToReplace = 'class="' + className + '"';
-            content = content.replace(style, classToReplace);
+            content = content.replace(htmlStyle, classToReplace);
 
+            //add to styles
+            var styleClass = '.' + className + '{ ' + style +' }';
+            writableStream2.write(styleClass)
             count++;
         }
     }
